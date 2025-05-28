@@ -1,12 +1,7 @@
 package com.baseballgame.api.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import jakarta.persistence.CascadeType
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
+import jakarta.persistence.*
 
 @Entity
 class BaseballGame(
@@ -18,7 +13,4 @@ class BaseballGame(
     @OneToMany(mappedBy = "game", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonIgnore
     val players: MutableList<Player> = mutableListOf()
-) {
-
-
-}
+)
