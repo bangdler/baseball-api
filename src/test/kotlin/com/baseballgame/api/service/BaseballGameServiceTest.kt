@@ -1,14 +1,12 @@
 package com.baseballgame.api.service
 
-import com.baseballgame.api.dto.HistoryDto
+import com.baseballgame.api.domain.History
 import com.baseballgame.api.dto.PlayerDto
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
-
 
 
 @SpringBootTest
@@ -52,7 +50,7 @@ class BaseballGameServiceTest(
             PlayerDto(
                 isWinner = true,
                 history = listOf(
-                    HistoryDto(input = "123", strike = 2, ball = 1)
+                    History(id = 123, input = "123", strike = 2, ball = 1)
                 )
             )
         )

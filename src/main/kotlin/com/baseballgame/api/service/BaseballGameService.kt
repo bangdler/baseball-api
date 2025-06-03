@@ -41,7 +41,7 @@ class BaseballGameService(
                 isWinner = dto.isWinner,
                 game = game,
                 history = dto.history.map {
-                    History(input = it.input, strike = it.strike, ball = it.ball)
+                    History(id = it.id, input = it.input, strike = it.strike, ball = it.ball)
                 }.toMutableList()
             )
             game.players.add(player)
