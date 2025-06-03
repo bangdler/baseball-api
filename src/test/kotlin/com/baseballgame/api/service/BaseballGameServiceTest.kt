@@ -48,6 +48,7 @@ class BaseballGameServiceTest(
 
         val updatedPlayers = listOf(
             PlayerDto(
+                id = 1,
                 isWinner = true,
                 history = listOf(
                     History(id = 123, input = "123", strike = 2, ball = 1)

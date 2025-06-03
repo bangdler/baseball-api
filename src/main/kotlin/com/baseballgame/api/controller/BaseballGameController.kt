@@ -1,6 +1,7 @@
 package com.baseballgame.api.controller
 
 import com.baseballgame.api.domain.BaseballGame
+import com.baseballgame.api.dto.BaseballGameDto
 import com.baseballgame.api.dto.PlayerDto
 import com.baseballgame.api.service.BaseballGameService
 import org.springframework.http.HttpStatus
@@ -22,13 +23,13 @@ class BaseballGameController(
     }
 
     @GetMapping("/list")
-        fun getAllGames(): List<BaseballGame> {
-            return baseballGameService.findAllGames()
-        }
+    fun getAllGames(): List<BaseballGame> {
+        return baseballGameService.findAllGames()
+    }
 
 
     @GetMapping("/{id}")
-    fun getGame(@PathVariable id: Long): BaseballGame =
+    fun getGame(@PathVariable id: Long): BaseballGameDto =
         baseballGameService.findGame(id)
 
     @DeleteMapping("/{id}")

@@ -5,8 +5,8 @@ import jakarta.persistence.*
 @Entity
 class Player(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long,
 
     val isWinner: Boolean,
 

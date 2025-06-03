@@ -3,6 +3,7 @@ package com.baseballgame.api.service
 import com.baseballgame.api.domain.BaseballGame
 import com.baseballgame.api.domain.History
 import com.baseballgame.api.domain.Player
+import com.baseballgame.api.dto.BaseballGameDto
 import com.baseballgame.api.dto.PlayerDto
 import com.baseballgame.api.repository.BaseballGameRepository
 import jakarta.transaction.Transactional
@@ -17,8 +18,23 @@ class BaseballGameService(
         return baseballGameRepository.save(game)
     }
 
-    fun findGame(id: Long): BaseballGame =
-        baseballGameRepository.findById(id).orElseThrow { NoSuchElementException("Game not found") }
+    fun findGame(id: Long): BaseballGameDto {
+        val game = baseballGameRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Game not found") }
+
+        return BaseballGameDto(
+            id = game.id ?: throw IllegalStateException("Game ID is null"),
+            name = game.name,
+            isEnd = game.isEnd,
+            players = game.players.map { player ->
+                PlayerDto(
+                    id = player.id ?: throw IllegalStateException("Player ID is null"),
+                    isWinner = player.isWinner,
+                    history = player.history
+                )
+            }
+        )
+    }
 
     fun findAllGames(): List<BaseballGame> =
         baseballGameRepository.findAll().toList()
@@ -38,6 +54,7 @@ class BaseballGameService(
         game.players.clear()
         updatedPlayers.forEach { dto ->
             val player = Player(
+                id = dto.id,
                 isWinner = dto.isWinner,
                 game = game,
                 history = dto.history.map {
