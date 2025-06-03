@@ -20,6 +20,9 @@ class BaseballGameService(
     fun findGame(id: Long): BaseballGame =
         baseballGameRepository.findById(id).orElseThrow { NoSuchElementException("Game not found") }
 
+    fun findAllGames(): List<BaseballGame> =
+        baseballGameRepository.findAll().toList()
+
     fun deleteGame(id: Long) {
         baseballGameRepository.deleteById(id)
     }

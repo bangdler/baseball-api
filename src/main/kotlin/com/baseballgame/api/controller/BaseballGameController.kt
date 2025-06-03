@@ -21,6 +21,12 @@ class BaseballGameController(
         return ResponseEntity.status(HttpStatus.CREATED).body(game)
     }
 
+    @GetMapping("/list")
+        fun getAllGames(): List<BaseballGame> {
+            return baseballGameService.findAllGames()
+        }
+
+
     @GetMapping("/{id}")
     fun getGame(@PathVariable id: Long): BaseballGame =
         baseballGameService.findGame(id)
