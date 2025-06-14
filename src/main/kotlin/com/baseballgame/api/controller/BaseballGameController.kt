@@ -27,7 +27,6 @@ class BaseballGameController(
         return baseballGameService.findAllGames()
     }
 
-
     @GetMapping("/{id}")
     fun getGame(@PathVariable id: Long): BaseballGameDto =
         baseballGameService.findGame(id)
