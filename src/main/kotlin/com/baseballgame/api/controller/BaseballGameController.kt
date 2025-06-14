@@ -1,6 +1,7 @@
 package com.baseballgame.api.controller
 
 import com.baseballgame.api.domain.BaseballGame
+import com.baseballgame.api.domain.GameStatus
 import com.baseballgame.api.dto.BaseballGameDto
 import com.baseballgame.api.dto.PlayerDto
 import com.baseballgame.api.service.BaseballGameService
@@ -27,28 +28,28 @@ class BaseballGameController(
         return baseballGameService.findAllGames()
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9]+}")
     fun getGame(@PathVariable id: Long): BaseballGameDto =
         baseballGameService.findGame(id)
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id:[0-9]+}")
     fun deleteGame(@PathVariable id: Long): ResponseEntity<Void> {
         baseballGameService.deleteGame(id)
         return ResponseEntity.noContent().build()
     }
 
     data class UpdateGameRequest(
-        val isEnd: Boolean,
+        val status: GameStatus,
         val updatedPlayers: List<PlayerDto>,
         val newPlayerIdx: Int
     )
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id:[0-9]+}")
     fun updateGame(
         @PathVariable id: Long,
         @RequestBody request: UpdateGameRequest
     ): ResponseEntity<Void> {
-        baseballGameService.updateGame(id, request.isEnd, request.updatedPlayers, request.newPlayerIdx)
+        baseballGameService.updateGame(id, request.status, request.updatedPlayers, request.newPlayerIdx)
         return ResponseEntity.noContent().build()  // 204 No Content 응답
     }
 }

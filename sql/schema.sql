@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS baseball_number (
 CREATE TABLE IF NOT EXISTS baseball_game (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    is_end BOOLEAN NOT NULL DEFAULT FALSE
+    status VARCHAR(20) NOT NULL DEFAULT 'IDLE',
     cur_player_idx INT NOT NULL DEFAULT 0,
     answer_id BIGINT,
     CONSTRAINT fk_baseballgame_answer

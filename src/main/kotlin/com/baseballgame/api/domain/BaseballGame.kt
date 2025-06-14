@@ -9,7 +9,8 @@ class BaseballGame(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
     val name: String,
-    var isEnd: Boolean = false,
+    @Enumerated(EnumType.STRING)
+    var status: GameStatus = GameStatus.IDLE,
     @OneToMany(mappedBy = "game", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonIgnore
     val players: MutableList<Player> = mutableListOf(),

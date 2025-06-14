@@ -1,5 +1,6 @@
 package com.baseballgame.api.service
 
+import com.baseballgame.api.domain.GameStatus
 import com.baseballgame.api.domain.History
 import com.baseballgame.api.dto.PlayerDto
 import org.junit.jupiter.api.Assertions.*
@@ -21,7 +22,6 @@ class BaseballGameServiceTest(
         val createdGame = baseballGameService.createGame(gameName)
         assertNotNull(createdGame.id)
         assertEquals(gameName, createdGame.name)
-        assertFalse(createdGame.isEnd)
 
         val foundGame = createdGame.id?.let { baseballGameService.findGame(it) }
         assertEquals(createdGame.id, foundGame?.id)
@@ -56,10 +56,9 @@ class BaseballGameServiceTest(
             )
         )
 
-        baseballGameService.updateGame(createdGame.id!!, true, updatedPlayers)
+        baseballGameService.updateGame(createdGame.id!!, GameStatus.PROGRESS, updatedPlayers, 1)
 
         val updatedGame = baseballGameService.findGame(createdGame.id!!)
-        assertTrue(updatedGame.isEnd)
         assertEquals(1, updatedGame.players.size)
         assertEquals(true, updatedGame.players.first().isWinner)
         assertEquals("123", updatedGame.players.first().history.first().input)

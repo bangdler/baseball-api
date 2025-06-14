@@ -1,9 +1,6 @@
 package com.baseballgame.api.service
 
-import com.baseballgame.api.domain.BaseballGame
-import com.baseballgame.api.domain.BaseballNumber
-import com.baseballgame.api.domain.History
-import com.baseballgame.api.domain.Player
+import com.baseballgame.api.domain.*
 import com.baseballgame.api.dto.BaseballGameDto
 import com.baseballgame.api.dto.PlayerDto
 import com.baseballgame.api.repository.BaseballGameRepository
@@ -28,7 +25,7 @@ class BaseballGameService(
         return BaseballGameDto(
             id = game.id ?: throw IllegalStateException("Game ID is null"),
             name = game.name,
-            isEnd = game.isEnd,
+            status = game.status,
             players = game.players.map { player ->
                 PlayerDto(
                     id = player.id ?: throw IllegalStateException("Player ID is null"),
@@ -49,13 +46,13 @@ class BaseballGameService(
     }
 
     @Transactional
-    fun updateGame(gameId: Long, isEnd: Boolean, updatedPlayers: List<PlayerDto>, newPlayerIdx: Int) {
+    fun updateGame(gameId: Long, status: GameStatus, updatedPlayers: List<PlayerDto>, newPlayerIdx: Int) {
         val game = baseballGameRepository.findById(gameId)
             .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
 
-        game.isEnd = isEnd
+        game.status = status
         game.curPlayerIdx = newPlayerIdx
-        
+
         // 기존 플레이어를 모두 제거하고 새로 추가, 영속성 때문에 직접 수정해야 db에 반영이 된다고 함.
         game.players.clear()
         updatedPlayers.forEach { dto ->
