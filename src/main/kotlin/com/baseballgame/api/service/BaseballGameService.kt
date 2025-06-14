@@ -1,6 +1,7 @@
 package com.baseballgame.api.service
 
 import com.baseballgame.api.domain.BaseballGame
+import com.baseballgame.api.domain.BaseballNumber
 import com.baseballgame.api.domain.History
 import com.baseballgame.api.domain.Player
 import com.baseballgame.api.dto.BaseballGameDto
@@ -14,7 +15,9 @@ class BaseballGameService(
     private val baseballGameRepository: BaseballGameRepository
 ) {
     fun createGame(name: String): BaseballGame {
-        val game = BaseballGame(name = name)
+        val answer = createRandomBaseballNumber()
+        val game = BaseballGame(name = name, answer = answer, curPlayerIdx = 0)
+
         return baseballGameRepository.save(game)
     }
 
@@ -32,7 +35,9 @@ class BaseballGameService(
                     isWinner = player.isWinner,
                     history = player.history
                 )
-            }
+            },
+            answer = listOf(game.answer.number1, game.answer.number2, game.answer.number3),
+            curPlayerIdx = game.curPlayerIdx
         )
     }
 
@@ -44,12 +49,13 @@ class BaseballGameService(
     }
 
     @Transactional
-    fun updateGame(gameId: Long, isEnd: Boolean, updatedPlayers: List<PlayerDto>) {
+    fun updateGame(gameId: Long, isEnd: Boolean, updatedPlayers: List<PlayerDto>, newPlayerIdx: Int) {
         val game = baseballGameRepository.findById(gameId)
             .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
 
         game.isEnd = isEnd
-
+        game.curPlayerIdx = newPlayerIdx
+        
         // 기존 플레이어를 모두 제거하고 새로 추가, 영속성 때문에 직접 수정해야 db에 반영이 된다고 함.
         game.players.clear()
         updatedPlayers.forEach { dto ->
@@ -63,5 +69,14 @@ class BaseballGameService(
             )
             game.players.add(player)
         }
+    }
+
+    private fun createRandomBaseballNumber(): BaseballNumber {
+        val numbers = (1..9).shuffled().take(3)
+        return BaseballNumber(
+            number1 = numbers[0],
+            number2 = numbers[1],
+            number3 = numbers[2]
+        )
     }
 }

@@ -12,5 +12,9 @@ class BaseballGame(
     var isEnd: Boolean = false,
     @OneToMany(mappedBy = "game", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonIgnore
-    val players: MutableList<Player> = mutableListOf()
+    val players: MutableList<Player> = mutableListOf(),
+    var curPlayerIdx: Int = 0,
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "answer_id")
+    val answer: BaseballNumber
 )

@@ -1,8 +1,20 @@
+-- BaseballNumber 테이블 (정답 숫자 3개를 저장)
+CREATE TABLE IF NOT EXISTS baseball_number (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    number1 INT NOT NULL,
+    number2 INT NOT NULL,
+    number3 INT NOT NULL
+);
+
 -- BaseballGame 테이블
 CREATE TABLE IF NOT EXISTS baseball_game (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     is_end BOOLEAN NOT NULL DEFAULT FALSE
+    cur_player_idx INT NOT NULL DEFAULT 0,
+    answer_id BIGINT,
+    CONSTRAINT fk_baseballgame_answer
+    FOREIGN KEY (answer_id) REFERENCES baseball_number(id)
 );
 
 -- Player 테이블

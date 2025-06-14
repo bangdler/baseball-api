@@ -4,5 +4,7 @@ data class BaseballGameDto(
     val id: Long,
     val name: String,
     val isEnd: Boolean,
-    val players: List<PlayerDto>
+    val players: List<PlayerDto>,
+    val answer: List<Int>,
+    val curPlayerIdx: Int,
 )
