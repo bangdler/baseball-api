@@ -8,7 +8,7 @@ class Player(
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long,
 
-    val isWinner: Boolean,
+    var isWinner: Boolean,
 
     @ElementCollection
     @CollectionTable(name = "player_history", joinColumns = [JoinColumn(name = "player_id")])

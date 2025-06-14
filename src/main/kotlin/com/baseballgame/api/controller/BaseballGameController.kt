@@ -41,7 +41,7 @@ class BaseballGameController(
     data class UpdateGameRequest(
         val status: GameStatus,
         val updatedPlayers: List<PlayerDto>,
-        val newPlayerIdx: Int
+        val curPlayerIdx: Int
     )
 
     @PutMapping("/{id:[0-9]+}")
@@ -49,7 +49,7 @@ class BaseballGameController(
         @PathVariable id: Long,
         @RequestBody request: UpdateGameRequest
     ): ResponseEntity<Void> {
-        baseballGameService.updateGame(id, request.status, request.updatedPlayers, request.newPlayerIdx)
+        baseballGameService.updateGame(id, request.status, request.updatedPlayers, request.curPlayerIdx)
         return ResponseEntity.noContent().build()  // 204 No Content 응답
     }
 }

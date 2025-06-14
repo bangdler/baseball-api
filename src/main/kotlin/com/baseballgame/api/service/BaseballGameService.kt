@@ -53,20 +53,40 @@ class BaseballGameService(
         game.status = status
         game.curPlayerIdx = newPlayerIdx
 
-        // 기존 플레이어를 모두 제거하고 새로 추가, 영속성 때문에 직접 수정해야 db에 반영이 된다고 함.
-        game.players.clear()
+        // 기존 플레이어를 ID로 매핑
+        val existingPlayers = game.players.associateBy { it.id }
+
+        // 업데이트된 플레이어 처리
         updatedPlayers.forEach { dto ->
-            val player = Player(
-                id = dto.id,
-                isWinner = dto.isWinner,
-                game = game,
-                history = dto.history.map {
-                    History(id = it.id, input = it.input, strike = it.strike, ball = it.ball)
-                }.toMutableList()
-            )
-            game.players.add(player)
+            val player = existingPlayers[dto.id]
+            if (player != null) {
+                // 기존 플레이어 업데이트
+                player.isWinner = dto.isWinner
+                player.history.clear()
+                player.history.addAll(
+                    dto.history.map {
+                        History(id = it.id, input = it.input, strike = it.strike, ball = it.ball)
+                    }
+                )
+            } else {
+                // 새 플레이어 추가
+                val newPlayer = Player(
+                    id = dto.id,
+                    isWinner = dto.isWinner,
+                    game = game,
+                    history = dto.history.map {
+                        History(id = it.id, input = it.input, strike = it.strike, ball = it.ball)
+                    }.toMutableList()
+                )
+                game.players.add(newPlayer)
+            }
         }
+
+        // 제거된 플레이어 삭제 (orphanRemoval=true로 인해 자동 처리됨)
+        val playersToRemove = existingPlayers.keys - updatedPlayers.map { it.id }.toSet()
+        game.players.removeIf { it.id in playersToRemove }
     }
+
 
     private fun createRandomBaseballNumber(): BaseballNumber {
         val numbers = (1..9).shuffled().take(3)
