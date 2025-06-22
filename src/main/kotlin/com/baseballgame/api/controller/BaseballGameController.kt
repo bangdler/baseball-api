@@ -1,6 +1,5 @@
 package com.baseballgame.api.controller
 
-import com.baseballgame.api.domain.BaseballGame
 import com.baseballgame.api.domain.GameStatus
 import com.baseballgame.api.dto.BaseballGameDto
 import com.baseballgame.api.dto.PlayerDto
@@ -18,19 +17,19 @@ class BaseballGameController(
     data class CreateGameRequest(val name: String)
 
     @PostMapping
-    fun createGame(@RequestBody request: CreateGameRequest): ResponseEntity<BaseballGame> {
+    fun createGame(@RequestBody request: CreateGameRequest): ResponseEntity<BaseballGameDto> {
         val game = baseballGameService.createGame(request.name)
-        return ResponseEntity.status(HttpStatus.CREATED).body(game)
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaseballGameDto.from(game))
     }
 
     @GetMapping("/list")
-    fun getAllGames(): List<BaseballGame> {
-        return baseballGameService.findAllGames()
+    fun getAllGames(): List<BaseballGameDto> {
+        return baseballGameService.findAllGames().map { BaseballGameDto.from(it) }
     }
 
     @GetMapping("/{id:[0-9]+}")
     fun getGame(@PathVariable id: Long): BaseballGameDto =
-        baseballGameService.findGame(id)
+        BaseballGameDto.from(baseballGameService.findGame(id))
 
     @DeleteMapping("/{id:[0-9]+}")
     fun deleteGame(@PathVariable id: Long): ResponseEntity<Void> {
@@ -50,7 +49,7 @@ class BaseballGameController(
         @RequestBody request: UpdateGameRequest
     ): ResponseEntity<Void> {
         baseballGameService.updateGame(id, request.status, request.updatedPlayers, request.curPlayerIdx)
-        return ResponseEntity.noContent().build()  // 204 No Content 응답
+        return ResponseEntity.noContent().build()
     }
 }
 

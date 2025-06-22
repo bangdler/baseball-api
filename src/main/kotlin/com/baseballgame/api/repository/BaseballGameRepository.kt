@@ -1,6 +1,6 @@
 package com.baseballgame.api.repository
 
-import com.baseballgame.api.domain.BaseballGame
+import com.baseballgame.api.entity.BaseballGameEntity
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface BaseballGameRepository : JpaRepository<BaseballGame, Long>
+interface BaseballGameRepository : JpaRepository<BaseballGameEntity, Long>

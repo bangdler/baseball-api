@@ -4,5 +4,5 @@ class Player(
     val id: Long,
     var isWinner: Boolean,
     val history: List<History> = emptyList(),
-    val game: BaseballGame
+    val game: BaseballGame?
 )

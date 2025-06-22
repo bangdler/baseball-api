@@ -27,12 +27,12 @@ class BaseballGameEntity(
     @JoinColumn(name = "answer_id")
     val answer: BaseballNumberEntity
 ) {
-    fun toDomain(): BaseballGame {
+    fun toDomain(skipPlayers: Boolean = false): BaseballGame {
         return BaseballGame(
             id = id,
             name = name,
             status = status,
-            players = players.map { it.toDomain() },
+            players = if (skipPlayers) emptyList() else players.map { it.toDomain(skipGame = true) },
             curPlayerIdx = curPlayerIdx,
             answer = answer.toDomain()
         )
