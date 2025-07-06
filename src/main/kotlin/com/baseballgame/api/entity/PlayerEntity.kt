@@ -8,7 +8,8 @@ import jakarta.persistence.*
 @Table(name = "player")
 class PlayerEntity(
     @Id
-    val id: Long,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
 
     var isWinner: Boolean,
 

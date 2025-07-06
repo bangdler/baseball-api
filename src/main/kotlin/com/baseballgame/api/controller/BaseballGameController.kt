@@ -51,5 +51,17 @@ class BaseballGameController(
         baseballGameService.updateGame(id, request.status, request.updatedPlayers, request.curPlayerIdx)
         return ResponseEntity.noContent().build()
     }
+
+    data class TryBallRequest(val input: String)
+
+    @PostMapping("/{gameId}/try-ball")
+    fun tryBall(
+        @PathVariable gameId: Long,
+        @RequestBody request: TryBallRequest
+    ): ResponseEntity<BaseballGameDto> {
+        val updatedGame = baseballGameService.tryBall(gameId, request.input)
+        return ResponseEntity.ok(BaseballGameDto.from(updatedGame))
+    }
+
 }
 

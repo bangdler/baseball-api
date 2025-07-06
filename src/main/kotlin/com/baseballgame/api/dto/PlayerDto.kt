@@ -11,7 +11,7 @@ data class PlayerDto(
     companion object {
         fun from(domain: Player): PlayerDto =
             PlayerDto(
-                id = domain.id,
+                id = domain.id ?: throw IllegalStateException("Player ID is null"),
                 isWinner = domain.isWinner,
                 history = domain.history
             )

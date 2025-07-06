@@ -88,4 +88,23 @@ class BaseballGameService(
         val numbers = (1..9).shuffled().take(3)
         return BaseballNumber(numbers)
     }
+
+    @Transactional
+    fun tryBall(gameId: Long, input: String): BaseballGame {
+        val entity = baseballGameRepository.findById(gameId)
+            .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
+
+        val game = entity.toDomain()
+
+        val numberList = input.map { it.toString().toInt() }
+        val baseballNumber = BaseballNumber(numberList)
+
+        val updatedGame = game.tryBall(baseballNumber)
+
+        val updatedEntity = BaseballGameEntity.from(updatedGame)
+        baseballGameRepository.save(updatedEntity)
+
+        return updatedGame
+    }
+
 }
