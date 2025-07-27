@@ -40,14 +40,3 @@ CREATE TABLE IF NOT EXISTS player_history
     CONSTRAINT fk_history_player
         FOREIGN KEY (player_id) REFERENCES player (id) ON DELETE CASCADE
 );
-
---Room Table
-CREATE TABLE IF NOT EXISTS room
-(
-    id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    status    VARCHAR(20) NOT NULL DEFAULT 'WAITING',
-    room_code VARCHAR(20) NOT NULL UNIQUE,
-    game_id   BIGINT      NOT NULL,
-    CONSTRAINT fk_room_game
-        FOREIGN KEY (game_id) REFERENCES baseball_game (id)
-)

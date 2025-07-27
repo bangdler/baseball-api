@@ -42,7 +42,7 @@ class BaseballGameService(
     }
 
     @Transactional
-    fun updateGame(gameId: Long, status: GameStatus, updatedPlayers: List<PlayerDto>, newPlayerIdx: Int) {
+    fun updateGame(gameId: Long, status: GameStatus, updatedPlayers: List<PlayerResponse>, newPlayerIdx: Int) {
         val entity = baseballGameRepository.findById(gameId)
             .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
 

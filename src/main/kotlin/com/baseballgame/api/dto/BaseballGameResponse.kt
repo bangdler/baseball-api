@@ -7,7 +7,7 @@ data class BaseballGameResponse(
     val id: Long,
     val name: String,
     val status: GameStatus,
-    val players: List<PlayerDto>,
+    val players: List<PlayerResponse>,
     val answer: List<Int>,
     val curPlayerIdx: Int,
 ) {
@@ -17,7 +17,7 @@ data class BaseballGameResponse(
                 id = game.id ?: throw IllegalStateException("Game ID is null"),
                 name = game.name,
                 status = game.status,
-                players = game.players.map { PlayerDto.from(it) },
+                players = game.players.map { PlayerResponse.of(it) },
                 answer = game.answer.toList(),
                 curPlayerIdx = game.curPlayerIdx
             )

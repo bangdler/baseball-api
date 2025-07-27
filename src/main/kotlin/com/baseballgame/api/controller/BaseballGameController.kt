@@ -35,7 +35,7 @@ class BaseballGameController(
 
     data class UpdateGameRequest(
         val status: GameStatus,
-        val updatedPlayers: List<PlayerDto>,
+        val updatedPlayers: List<PlayerResponse>,
         val curPlayerIdx: Int
     )
 

@@ -2,7 +2,7 @@ package com.baseballgame.api.service
 
 import com.baseballgame.api.domain.GameStatus
 import com.baseballgame.api.domain.History
-import com.baseballgame.api.dto.PlayerDto
+import com.baseballgame.api.dto.PlayerResponse
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,7 +47,7 @@ class BaseballGameServiceTest(
         assertNotNull(createdGame.id)
 
         val updatedPlayers = listOf(
-            PlayerDto(
+            PlayerResponse(
                 id = 1,
                 isWinner = true,
                 history = listOf(
