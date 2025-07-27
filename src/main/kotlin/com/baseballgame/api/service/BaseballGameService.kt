@@ -4,7 +4,7 @@ import HistoryEntity
 import com.baseballgame.api.domain.BaseballGame
 import com.baseballgame.api.domain.BaseballNumber
 import com.baseballgame.api.domain.GameStatus
-import com.baseballgame.api.dto.PlayerDto
+import com.baseballgame.api.dto.*
 import com.baseballgame.api.entity.BaseballGameEntity
 import com.baseballgame.api.entity.PlayerEntity
 import com.baseballgame.api.repository.BaseballGameRepository
@@ -15,24 +15,27 @@ import org.springframework.stereotype.Service
 class BaseballGameService(
     private val baseballGameRepository: BaseballGameRepository
 ) {
-    fun createGame(name: String): BaseballGame {
+    fun createGame(request: BaseballGameCreateRequest): BaseballGameResponse {
         val answer = createRandomBaseballNumber()
-        val game = BaseballGame(name = name, answer = answer)
+        val game = BaseballGame(name = request.name, answer = answer)
 
         val entity = BaseballGameEntity.from(domain = game)
         val savedEntity = baseballGameRepository.save(entity)
 
-        return savedEntity.toDomain()
+        return BaseballGameResponse.of(game = savedEntity.toDomain())
     }
 
-    fun findGame(id: Long): BaseballGame {
+    fun findGame(id: Long): BaseballGameResponse {
         val entity = baseballGameRepository.findById(id)
             .orElseThrow { NoSuchElementException("Game not found") }
-        return entity.toDomain()
+        return BaseballGameResponse.of(game = entity.toDomain())
     }
 
-    fun findAllGames(): List<BaseballGame> =
-        baseballGameRepository.findAll().map { it.toDomain() }
+    fun findAllGames(): BaseballGameResponses {
+        val games = baseballGameRepository.findAll().map { it.toDomain() }
+        return BaseballGameResponses.of(games = games)
+    }
+
 
     fun deleteGame(id: Long) {
         baseballGameRepository.deleteById(id)
@@ -90,13 +93,18 @@ class BaseballGameService(
     }
 
     @Transactional
-    fun tryBall(gameId: Long, input: String): BaseballGame {
+    fun tryBall(gameId: Long, request: BaseballGameTryBallRequest): BaseballGame {
         val entity = baseballGameRepository.findById(gameId)
             .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
 
         val game = entity.toDomain()
 
-        val numberList = input.map { it.toString().toInt() }
+        val isCurrentPlayer = game.players[game.curPlayerIdx].id == request.playerId
+        if (!isCurrentPlayer) {
+            throw RuntimeException("해당 플레이어 차례가 아닙니다.")
+        }
+
+        val numberList = request.input.map { it.toString().toInt() }
         val baseballNumber = BaseballNumber(numberList)
 
         val updatedGame = game.tryBall(baseballNumber)
