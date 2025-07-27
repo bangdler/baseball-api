@@ -9,7 +9,7 @@ class BaseballGame(
     val answer: BaseballNumber
 ) {
     fun addPlayer(): BaseballGame {
-        val newPlayer = Player(isWinner = false, game = this)
+        val newPlayer = Player(isWinner = false, gameId = id)
 
         val newPlayers = players.plus(newPlayer)
 
@@ -26,7 +26,7 @@ class BaseballGame(
         if (players.isEmpty()) {
             throw IllegalStateException("플레이어가 존재하지 않습니다.")
         }
-        
+
         val currentPlayer = players[curPlayerIdx];
         val updatedPlayer = currentPlayer.tryBall(answer, baseballNumber)
 

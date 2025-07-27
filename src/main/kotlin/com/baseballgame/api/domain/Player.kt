@@ -4,7 +4,7 @@ class Player(
     val id: Long? = null,
     var isWinner: Boolean,
     val history: List<History> = emptyList(),
-    val game: BaseballGame?
+    val gameId: Long?,
 ) {
     fun tryBall(answer: BaseballNumber, baseballNumber: BaseballNumber): Player {
         val isWin = answer.isEqual(baseballNumber)
@@ -17,6 +17,6 @@ class Player(
             ball = result.ball
         )
 
-        return Player(id, isWinner = isWin, history = newHistory, game)
+        return Player(id, isWinner = isWin, history = newHistory, gameId = gameId)
     }
 }

@@ -1,6 +1,7 @@
 package com.baseballgame.api.entity
 
 import HistoryEntity
+import com.baseballgame.api.domain.BaseballGame
 import com.baseballgame.api.domain.Player
 import jakarta.persistence.*
 
@@ -21,25 +22,22 @@ class PlayerEntity(
     @JoinColumn(name = "game_id")
     val game: BaseballGameEntity
 ) {
-    fun toDomain(skipGame: Boolean = false): Player {
+    fun toDomain(): Player {
         return Player(
             id = id,
             isWinner = isWinner,
             history = history.map { it.toDomain() }.toList(),
-            game = if (skipGame) null else game.toDomain(skipPlayers = true)
+            gameId = game.id
         )
     }
 
     companion object {
-        fun from(domain: Player): PlayerEntity {
-            val gameEntity = domain.game?.let { BaseballGameEntity.from(it) }
-                ?: throw IllegalArgumentException("Player의 game은 null일 수 없습니다.")
-
+        fun from(domain: Player, game: BaseballGame): PlayerEntity {
             return PlayerEntity(
                 id = domain.id,
                 isWinner = domain.isWinner,
                 history = domain.history.map { HistoryEntity.from(it) }.toMutableList(),
-                game = gameEntity
+                game = BaseballGameEntity.from(game)
             )
         }
     }
