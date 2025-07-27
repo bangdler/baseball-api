@@ -8,6 +8,7 @@ import com.baseballgame.api.domain.Player
 import com.baseballgame.api.dto.*
 import com.baseballgame.api.entity.BaseballGameEntity
 import com.baseballgame.api.entity.PlayerEntity
+import com.baseballgame.api.exception.GameNotFoundException
 import com.baseballgame.api.repository.BaseballGameRepository
 import com.baseballgame.api.repository.PlayerRepository
 import jakarta.transaction.Transactional
@@ -30,7 +31,7 @@ class BaseballGameService(
 
     fun findGame(id: Long): BaseballGameResponse {
         val entity = baseballGameRepository.findById(id)
-            .orElseThrow { NoSuchElementException("Game not found") }
+            .orElseThrow { GameNotFoundException() }
         return BaseballGameResponse.of(game = entity.toDomain())
     }
 
@@ -47,7 +48,7 @@ class BaseballGameService(
     @Transactional
     fun updateGame(gameId: Long, status: GameStatus, updatedPlayers: List<PlayerResponse>, newPlayerIdx: Int) {
         val entity = baseballGameRepository.findById(gameId)
-            .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
+            .orElseThrow { GameNotFoundException() }
 
         entity.status = status
         entity.curPlayerIdx = newPlayerIdx
@@ -98,7 +99,7 @@ class BaseballGameService(
     @Transactional
     fun tryBall(gameId: Long, request: BaseballGameTryBallRequest): BaseballGame {
         val entity = baseballGameRepository.findById(gameId)
-            .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
+            .orElseThrow { GameNotFoundException() }
 
         val game = entity.toDomain()
 
@@ -121,7 +122,7 @@ class BaseballGameService(
     @Transactional
     fun addPlayer(gameId: Long): BaseballGame {
         val entity = baseballGameRepository.findById(gameId)
-            .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
+            .orElseThrow { GameNotFoundException() }
 
         val game = entity.toDomain()
         val player = Player(
@@ -134,7 +135,7 @@ class BaseballGameService(
     @Transactional
     fun removePlayer(gameId: Long, id: Long) {
         baseballGameRepository.findById(gameId)
-            .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
+            .orElseThrow { GameNotFoundException() }
 
         playerRepository.deleteById(id)
     }
