@@ -4,16 +4,19 @@ import HistoryEntity
 import com.baseballgame.api.domain.BaseballGame
 import com.baseballgame.api.domain.BaseballNumber
 import com.baseballgame.api.domain.GameStatus
+import com.baseballgame.api.domain.Player
 import com.baseballgame.api.dto.*
 import com.baseballgame.api.entity.BaseballGameEntity
 import com.baseballgame.api.entity.PlayerEntity
 import com.baseballgame.api.repository.BaseballGameRepository
+import com.baseballgame.api.repository.PlayerRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
 class BaseballGameService(
-    private val baseballGameRepository: BaseballGameRepository
+    private val baseballGameRepository: BaseballGameRepository,
+    private val playerRepository: PlayerRepository
 ) {
     fun createGame(request: BaseballGameCreateRequest): BaseballGameResponse {
         val answer = createRandomBaseballNumber()
@@ -121,25 +124,18 @@ class BaseballGameService(
             .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
 
         val game = entity.toDomain()
-        val updatedGame = game.addPlayer()
-
-        val updatedEntity = BaseballGameEntity.from(domain = updatedGame)
-        baseballGameRepository.save(updatedEntity)
-
-        return updatedGame
+        val player = Player(
+            gameId = entity.id, isWinner = false
+        )
+        playerRepository.save(PlayerEntity.from(domain = player, game = entity))
+        return game
     }
 
     @Transactional
-    fun removePlayer(gameId: Long, playerId: Long): BaseballGame {
-        val entity = baseballGameRepository.findById(gameId)
+    fun removePlayer(gameId: Long, id: Long) {
+        baseballGameRepository.findById(gameId)
             .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
 
-        val game = entity.toDomain()
-        val updatedGame = game.removePlayer(playerId = playerId)
-
-        val updatedEntity = BaseballGameEntity.from(domain = updatedGame)
-        baseballGameRepository.save(updatedEntity)
-
-        return updatedGame
+        playerRepository.deleteById(id)
     }
 }

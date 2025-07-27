@@ -40,15 +40,17 @@ class BaseballGameEntity(
 
     companion object {
         fun from(domain: BaseballGame): BaseballGameEntity {
-            return BaseballGameEntity(
+            val gameEntity = BaseballGameEntity(
                 id = domain.id,
                 name = domain.name,
                 status = domain.status,
-                players = domain.players.map { player -> PlayerEntity.from(domain = player, game = domain) }
-                    .toMutableList(),
+                players = mutableListOf(),
                 curPlayerIdx = domain.curPlayerIdx,
                 answer = BaseballNumberEntity.from(domain.answer)
             )
+            gameEntity.players.addAll(domain.players.map { player -> PlayerEntity.from(player, gameEntity) })
+
+            return gameEntity
         }
     }
 }
