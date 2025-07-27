@@ -1,7 +1,6 @@
 package com.baseballgame.api.entity
 
 import HistoryEntity
-import com.baseballgame.api.domain.BaseballGame
 import com.baseballgame.api.domain.Player
 import jakarta.persistence.*
 
@@ -32,12 +31,12 @@ class PlayerEntity(
     }
 
     companion object {
-        fun from(domain: Player, game: BaseballGame): PlayerEntity {
+        fun from(domain: Player, game: BaseballGameEntity): PlayerEntity {
             return PlayerEntity(
                 id = domain.id,
                 isWinner = domain.isWinner,
                 history = domain.history.map { HistoryEntity.from(it) }.toMutableList(),
-                game = BaseballGameEntity.from(game)
+                game = game
             )
         }
     }

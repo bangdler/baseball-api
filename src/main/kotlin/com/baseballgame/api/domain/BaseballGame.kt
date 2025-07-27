@@ -8,34 +8,6 @@ class BaseballGame(
     var curPlayerIdx: Int = 0,
     val answer: BaseballNumber
 ) {
-    fun addPlayer(): BaseballGame {
-        val newPlayer = Player(isWinner = false, gameId = id)
-
-        val newPlayers = players.plus(newPlayer)
-
-        return BaseballGame(
-            id = id,
-            name = name,
-            status = status,
-            players = newPlayers,
-            curPlayerIdx = 0,
-            answer = answer
-        )
-    }
-
-    fun removePlayer(playerId: Long): BaseballGame {
-        val newPlayers = players.filter { it.id != playerId }
-
-        return BaseballGame(
-            id = playerId,
-            name = name,
-            status = status,
-            players = newPlayers,
-            curPlayerIdx = 0,
-            answer = answer
-        )
-    }
-
     fun tryBall(baseballNumber: BaseballNumber): BaseballGame {
         if (players.isEmpty()) {
             throw IllegalStateException("플레이어가 존재하지 않습니다.")
