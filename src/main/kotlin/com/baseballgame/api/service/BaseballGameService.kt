@@ -115,4 +115,31 @@ class BaseballGameService(
         return updatedGame
     }
 
+    @Transactional
+    fun addPlayer(gameId: Long): BaseballGame {
+        val entity = baseballGameRepository.findById(gameId)
+            .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
+
+        val game = entity.toDomain()
+        val updatedGame = game.addPlayer()
+
+        val updatedEntity = BaseballGameEntity.from(domain = updatedGame)
+        baseballGameRepository.save(updatedEntity)
+
+        return updatedGame
+    }
+
+    @Transactional
+    fun removePlayer(gameId: Long, playerId: Long): BaseballGame {
+        val entity = baseballGameRepository.findById(gameId)
+            .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
+
+        val game = entity.toDomain()
+        val updatedGame = game.removePlayer(playerId = playerId)
+
+        val updatedEntity = BaseballGameEntity.from(domain = updatedGame)
+        baseballGameRepository.save(updatedEntity)
+
+        return updatedGame
+    }
 }

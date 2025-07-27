@@ -13,13 +13,27 @@ class BaseballGame(
 
         val newPlayers = players.plus(newPlayer)
 
-        return BaseballGame(id, name, status, newPlayers, curPlayerIdx, answer)
+        return BaseballGame(
+            id = id,
+            name = name,
+            status = status,
+            players = newPlayers,
+            curPlayerIdx = 0,
+            answer = answer
+        )
     }
 
-    fun removePlayer(id: Long): BaseballGame {
-        val newPlayers = players.filter { it.id != id }
+    fun removePlayer(playerId: Long): BaseballGame {
+        val newPlayers = players.filter { it.id != playerId }
 
-        return BaseballGame(id, name, status, newPlayers, curPlayerIdx, answer)
+        return BaseballGame(
+            id = playerId,
+            name = name,
+            status = status,
+            players = newPlayers,
+            curPlayerIdx = 0,
+            answer = answer
+        )
     }
 
     fun tryBall(baseballNumber: BaseballNumber): BaseballGame {

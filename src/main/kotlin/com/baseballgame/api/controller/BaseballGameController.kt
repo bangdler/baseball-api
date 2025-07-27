@@ -49,7 +49,7 @@ class BaseballGameController(
     }
 
 
-    @PostMapping("/{gameId}/try-ball")
+    @PutMapping("/{gameId}/try-ball")
     fun tryBall(
         @PathVariable gameId: Long,
         @RequestBody request: BaseballGameTryBallRequest
@@ -58,5 +58,16 @@ class BaseballGameController(
         return ResponseEntity.ok(BaseballGameResponse.of(updatedGame))
     }
 
+    @PostMapping("/{gameId}/player")
+    fun addPlayer(@PathVariable gameId: Long): ResponseEntity<BaseballGameResponse> {
+        val updatedGame = baseballGameService.addPlayer(gameId)
+        return ResponseEntity.ok(BaseballGameResponse.of(updatedGame))
+    }
+
+    @DeleteMapping("/{gameId}/player/{playerId}")
+    fun removePlayer(@PathVariable gameId: Long, @PathVariable playerId: Long): ResponseEntity<Void> {
+        baseballGameService.removePlayer(gameId, playerId)
+        return ResponseEntity.noContent().build()
+    }
 }
 
