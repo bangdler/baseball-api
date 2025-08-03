@@ -1,69 +1,114 @@
 package com.baseballgame.api.service
 
-import com.baseballgame.api.domain.GameStatus
-import com.baseballgame.api.domain.History
-import com.baseballgame.api.dto.PlayerResponse
-import org.junit.jupiter.api.Assertions.*
+import com.baseballgame.api.domain.BaseballNumber
+import com.baseballgame.api.dto.BaseballGameTryBallRequest
+import com.baseballgame.api.entity.BaseballGameEntity
+import com.baseballgame.api.entity.PlayerEntity
+import com.baseballgame.api.fixture.SavedBaseballGameFixture
+import com.baseballgame.api.fixture.SavedPlayerFixture
+import com.baseballgame.api.test.BaseballGameSpringTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.transaction.annotation.Transactional
+import kotlin.test.assertEquals
 
 
-@SpringBootTest
-@Transactional
-class BaseballGameServiceTest(
-    @Autowired private val baseballGameService: BaseballGameService
-) {
-    @Test
-//    @Rollback(false)
-    fun createGame() {
-        val gameName = "테스트 게임"
-        val createdGame = baseballGameService.createGame(gameName)
-        assertNotNull(createdGame.id)
-        assertEquals(gameName, createdGame.name)
+class BaseballGameServiceTest : BaseballGameSpringTest() {
+    @Autowired
+    private lateinit var sut: BaseballGameService
 
-        val foundGame = createdGame.id?.let { baseballGameService.findGame(it) }
-        assertEquals(createdGame.id, foundGame?.id)
-    }
 
     @Test
-    fun deleteGame() {
-        val gameName = "삭제 테스트 게임"
-        val createdGame = baseballGameService.createGame(gameName)
-        assertNotNull(createdGame.id)
+    fun `플레이어 tryBall 요청 - 히스토리에 strike 0, ball 0이 추가된다`() {
+        // given
+        val 정답 = listOf(1, 2, 3)
+        val 게임 = 게임_생성(정답, "테스트 게임")
+        val 플레이어 = 플레이어_추가(게임)
+        val request = BaseballGameTryBallRequest("456", 플레이어.id!!)
 
-        baseballGameService.deleteGame(createdGame.id!!)
-
-        assertThrows(NoSuchElementException::class.java) {
-            baseballGameService.findGame(createdGame.id!!)
-        }
-    }
-
-    @Test
-    fun updateGame() {
-        val gameName = "업데이트 테스트 게임"
-        val createdGame = baseballGameService.createGame(gameName)
-        assertNotNull(createdGame.id)
-
-        val updatedPlayers = listOf(
-            PlayerResponse(
-                id = 1,
-                isWinner = true,
-                history = listOf(
-                    History(id = 123, input = "123", strike = 2, ball = 1)
-                )
-            )
+        // when
+        val actual = sut.tryBall(
+            게임.id!!,
+            request = request,
         )
 
-        baseballGameService.updateGame(createdGame.id!!, GameStatus.PROGRESS, updatedPlayers, 1)
-
-        val updatedGame = baseballGameService.findGame(createdGame.id!!)
-        assertEquals(1, updatedGame.players.size)
-        assertEquals(true, updatedGame.players.first().isWinner)
-        assertEquals("123", updatedGame.players.first().history.first().input)
-        assertEquals(2, updatedGame.players.first().history.first().strike)
-        assertEquals(1, updatedGame.players.first().history.first().ball)
+        // then
+        assertEquals(actual.players[0].history.size, 1)
+        assertEquals(actual.players[0].history[0].strike, 0)
+        assertEquals(actual.players[0].history[0].ball, 0)
     }
 
+    @Test
+    fun `플레이어 tryBall 요청 - 히스토리에 strike 2, ball 0이 추가된다`() {
+        // given
+        val 정답 = listOf(1, 2, 3)
+        val 게임 = 게임_생성(정답, "테스트 게임")
+        val 플레이어 = 플레이어_추가(게임)
+        val request = BaseballGameTryBallRequest("126", 플레이어.id!!)
+
+        // when
+        val actual = sut.tryBall(
+            게임.id!!,
+            request = request,
+        )
+
+        // then
+        assertEquals(actual.players[0].history.size, 1)
+        assertEquals(actual.players[0].history[0].strike, 2)
+        assertEquals(actual.players[0].history[0].ball, 0)
+    }
+
+    @Test
+    fun `플레이어 tryBall 요청 - 히스토리에 strike 1, ball 1이 추가된다`() {
+        // given
+        val 정답 = listOf(1, 2, 3)
+        val 게임 = 게임_생성(정답, "테스트 게임")
+        val 플레이어 = 플레이어_추가(게임)
+        val request = BaseballGameTryBallRequest("137", 플레이어.id!!)
+
+        // when
+        val actual = sut.tryBall(
+            게임.id!!,
+            request = request,
+        )
+
+        // then
+        assertEquals(actual.players[0].history.size, 1)
+        assertEquals(actual.players[0].history[0].strike, 1)
+        assertEquals(actual.players[0].history[0].ball, 1)
+    }
+
+    @Test
+    fun `플레이어 tryBall 요청 - 히스토리에 strike 3, ball 0이 추가된다`() {
+        // given
+        val 정답 = listOf(1, 2, 3)
+        val 게임 = 게임_생성(정답, "테스트 게임")
+        val 플레이어 = 플레이어_추가(게임)
+        val request = BaseballGameTryBallRequest("123", 플레이어.id!!)
+
+        // when
+        val actual = sut.tryBall(
+            게임.id!!,
+            request = request,
+        )
+
+        // then
+        assertEquals(actual.players[0].history.size, 1)
+        assertEquals(actual.players[0].history[0].strike, 3)
+        assertEquals(actual.players[0].history[0].ball, 0)
+    }
+
+    private fun 게임_생성(answer: List<Int>, name: String): BaseballGameEntity {
+        return SavedBaseballGameFixture.init(
+            baseballGameRepository = baseballGameRepository,
+            answer = BaseballNumber(numbers = answer),
+            name = name
+        )
+    }
+
+    private fun 플레이어_추가(gameEntity: BaseballGameEntity): PlayerEntity {
+        return SavedPlayerFixture.init(
+            playerRepository = playerRepository,
+            baseballGameEntity = gameEntity
+        )
+    }
 }
