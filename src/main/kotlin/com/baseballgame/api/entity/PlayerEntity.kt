@@ -25,7 +25,7 @@ class PlayerEntity(
         return Player(
             id = id,
             isWinner = isWinner,
-            history = history.map { it.toDomain() }.toList(),
+            history = history.map { it.toDomain() },
             gameId = game.id
         )
     }

@@ -121,22 +121,23 @@ class BaseballGameService(
 
     @Transactional
     fun addPlayer(gameId: Long): BaseballGame {
-        val entity = baseballGameRepository.findById(gameId)
+        val gameEntity = baseballGameRepository.findById(gameId)
             .orElseThrow { GameNotFoundException() }
 
-        val game = entity.toDomain()
         val player = Player(
-            gameId = entity.id, isWinner = false
+            gameId = null, isWinner = false
         )
-        playerRepository.save(PlayerEntity.from(domain = player, game = entity))
-        return game
+        val playerEntity = PlayerEntity.from(domain = player, game = gameEntity)
+        gameEntity.addPlayer(playerEntity)
+        playerRepository.save(playerEntity)
+        return gameEntity.toDomain()
     }
 
     @Transactional
     fun removePlayer(gameId: Long, id: Long) {
-        baseballGameRepository.findById(gameId)
+        val gameEntity = baseballGameRepository.findById(gameId)
             .orElseThrow { GameNotFoundException() }
-
+        gameEntity.removePlayer(id)
         playerRepository.deleteById(id)
     }
 }

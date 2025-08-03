@@ -38,6 +38,14 @@ class BaseballGameEntity(
         )
     }
 
+    fun addPlayer(player: PlayerEntity) {
+        players.add(player)
+    }
+
+    fun removePlayer(playerId: Long) {
+        players.removeIf { it.id == playerId }
+    }
+
     companion object {
         fun from(domain: BaseballGame): BaseballGameEntity {
             val gameEntity = BaseballGameEntity(
