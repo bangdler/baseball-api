@@ -8,6 +8,7 @@ import com.baseballgame.api.fixture.SavedBaseballGameFixture
 import com.baseballgame.api.fixture.SavedPlayerFixture
 import com.baseballgame.api.test.BaseballGameSpringTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
 
@@ -96,6 +97,21 @@ class BaseballGameServiceTest : BaseballGameSpringTest() {
         assertEquals(actual.players[0].history[0].strike, 3)
         assertEquals(actual.players[0].history[0].ball, 0)
     }
+
+    @Test
+    fun `플레이어 tryBall 요청 - 잘못된 input인 경우 에러`() {
+        // given
+        val 정답 = listOf(1, 2, 3)
+        val 게임 = 게임_생성(정답, "테스트 게임")
+        val 플레이어 = 플레이어_추가(게임)
+        val request = BaseballGameTryBallRequest("113", 플레이어.id!!)
+
+        // when then
+        assertThrows<IllegalArgumentException> {
+            sut.tryBall(게임.id!!, request)
+        }.message.equals("BaseballNumber의 세 숫자는 모두 달라야 합니다.")
+    }
+
 
     private fun 게임_생성(answer: List<Int>, name: String): BaseballGameEntity {
         return SavedBaseballGameFixture.init(
