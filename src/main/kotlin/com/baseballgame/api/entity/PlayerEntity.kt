@@ -8,7 +8,8 @@ import jakarta.persistence.*
 @Table(name = "player")
 class PlayerEntity(
     @Id
-    val id: Long,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
 
     var isWinner: Boolean,
 
@@ -20,25 +21,22 @@ class PlayerEntity(
     @JoinColumn(name = "game_id")
     val game: BaseballGameEntity
 ) {
-    fun toDomain(skipGame: Boolean = false): Player {
+    fun toDomain(): Player {
         return Player(
             id = id,
             isWinner = isWinner,
-            history = history.map { it.toDomain() }.toList(),
-            game = if (skipGame) null else game.toDomain(skipPlayers = true)
+            history = history.map { it.toDomain() },
+            gameId = game.id
         )
     }
 
     companion object {
-        fun from(domain: Player): PlayerEntity {
-            val gameEntity = domain.game?.let { BaseballGameEntity.from(it) }
-                ?: throw IllegalArgumentException("Player의 game은 null일 수 없습니다.")
-
+        fun from(domain: Player, game: BaseballGameEntity): PlayerEntity {
             return PlayerEntity(
                 id = domain.id,
                 isWinner = domain.isWinner,
                 history = domain.history.map { HistoryEntity.from(it) }.toMutableList(),
-                game = gameEntity
+                game = game
             )
         }
     }

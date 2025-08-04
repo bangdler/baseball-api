@@ -1,8 +1,7 @@
 package com.baseballgame.api.controller
 
 import com.baseballgame.api.domain.GameStatus
-import com.baseballgame.api.dto.BaseballGameDto
-import com.baseballgame.api.dto.PlayerDto
+import com.baseballgame.api.dto.*
 import com.baseballgame.api.service.BaseballGameService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -13,23 +12,20 @@ import org.springframework.web.bind.annotation.*
 class BaseballGameController(
     private val baseballGameService: BaseballGameService
 ) {
-
-    data class CreateGameRequest(val name: String)
-
     @PostMapping
-    fun createGame(@RequestBody request: CreateGameRequest): ResponseEntity<BaseballGameDto> {
-        val game = baseballGameService.createGame(request.name)
-        return ResponseEntity.status(HttpStatus.CREATED).body(BaseballGameDto.from(game))
+    fun createGame(@RequestBody request: BaseballGameCreateRequest): ResponseEntity<Long> {
+        val gameResponse = baseballGameService.createGame(request)
+        return ResponseEntity.status(HttpStatus.CREATED).body(gameResponse.id)
     }
 
     @GetMapping("/list")
-    fun getAllGames(): List<BaseballGameDto> {
-        return baseballGameService.findAllGames().map { BaseballGameDto.from(it) }
+    fun getAllGames(): ResponseEntity<BaseballGameResponses> {
+        return ResponseEntity.ok(baseballGameService.findAllGames())
     }
 
     @GetMapping("/{id:[0-9]+}")
-    fun getGame(@PathVariable id: Long): BaseballGameDto =
-        BaseballGameDto.from(baseballGameService.findGame(id))
+    fun getGame(@PathVariable id: Long): ResponseEntity<BaseballGameResponse> =
+        ResponseEntity.ok(baseballGameService.findGame(id))
 
     @DeleteMapping("/{id:[0-9]+}")
     fun deleteGame(@PathVariable id: Long): ResponseEntity<Void> {
@@ -39,7 +35,7 @@ class BaseballGameController(
 
     data class UpdateGameRequest(
         val status: GameStatus,
-        val updatedPlayers: List<PlayerDto>,
+        val updatedPlayers: List<PlayerResponse>,
         val curPlayerIdx: Int
     )
 
@@ -49,6 +45,28 @@ class BaseballGameController(
         @RequestBody request: UpdateGameRequest
     ): ResponseEntity<Void> {
         baseballGameService.updateGame(id, request.status, request.updatedPlayers, request.curPlayerIdx)
+        return ResponseEntity.noContent().build()
+    }
+
+
+    @PutMapping("/{gameId}/try-ball")
+    fun tryBall(
+        @PathVariable gameId: Long,
+        @RequestBody request: BaseballGameTryBallRequest
+    ): ResponseEntity<BaseballGameResponse> {
+        val updatedGame = baseballGameService.tryBall(gameId, request)
+        return ResponseEntity.ok(BaseballGameResponse.of(updatedGame))
+    }
+
+    @PostMapping("/{gameId}/player")
+    fun addPlayer(@PathVariable gameId: Long): ResponseEntity<BaseballGameResponse> {
+        val updatedGame = baseballGameService.addPlayer(gameId)
+        return ResponseEntity.ok(BaseballGameResponse.of(updatedGame))
+    }
+
+    @DeleteMapping("/{gameId}/player/{playerId}")
+    fun removePlayer(@PathVariable gameId: Long, @PathVariable playerId: Long): ResponseEntity<Void> {
+        baseballGameService.removePlayer(gameId, playerId)
         return ResponseEntity.noContent().build()
     }
 }

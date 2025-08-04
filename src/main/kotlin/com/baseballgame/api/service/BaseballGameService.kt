@@ -4,44 +4,51 @@ import HistoryEntity
 import com.baseballgame.api.domain.BaseballGame
 import com.baseballgame.api.domain.BaseballNumber
 import com.baseballgame.api.domain.GameStatus
-import com.baseballgame.api.dto.PlayerDto
+import com.baseballgame.api.domain.Player
+import com.baseballgame.api.dto.*
 import com.baseballgame.api.entity.BaseballGameEntity
 import com.baseballgame.api.entity.PlayerEntity
+import com.baseballgame.api.exception.GameNotFoundException
 import com.baseballgame.api.repository.BaseballGameRepository
+import com.baseballgame.api.repository.PlayerRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
 class BaseballGameService(
-    private val baseballGameRepository: BaseballGameRepository
+    private val baseballGameRepository: BaseballGameRepository,
+    private val playerRepository: PlayerRepository
 ) {
-    fun createGame(name: String): BaseballGame {
+    fun createGame(request: BaseballGameCreateRequest): BaseballGameResponse {
         val answer = createRandomBaseballNumber()
-        val game = BaseballGame(name = name, answer = answer)
+        val game = BaseballGame(name = request.name, answer = answer)
 
         val entity = BaseballGameEntity.from(domain = game)
         val savedEntity = baseballGameRepository.save(entity)
 
-        return savedEntity.toDomain()
+        return BaseballGameResponse.of(game = savedEntity.toDomain())
     }
 
-    fun findGame(id: Long): BaseballGame {
+    fun findGame(id: Long): BaseballGameResponse {
         val entity = baseballGameRepository.findById(id)
-            .orElseThrow { NoSuchElementException("Game not found") }
-        return entity.toDomain()
+            .orElseThrow { GameNotFoundException() }
+        return BaseballGameResponse.of(game = entity.toDomain())
     }
 
-    fun findAllGames(): List<BaseballGame> =
-        baseballGameRepository.findAll().map { it.toDomain() }
+    fun findAllGames(): BaseballGameResponses {
+        val games = baseballGameRepository.findAll().map { it.toDomain() }
+        return BaseballGameResponses.of(games = games)
+    }
+
 
     fun deleteGame(id: Long) {
         baseballGameRepository.deleteById(id)
     }
 
     @Transactional
-    fun updateGame(gameId: Long, status: GameStatus, updatedPlayers: List<PlayerDto>, newPlayerIdx: Int) {
+    fun updateGame(gameId: Long, status: GameStatus, updatedPlayers: List<PlayerResponse>, newPlayerIdx: Int) {
         val entity = baseballGameRepository.findById(gameId)
-            .orElseThrow { RuntimeException("해당 게임이 없습니다.") }
+            .orElseThrow { GameNotFoundException() }
 
         entity.status = status
         entity.curPlayerIdx = newPlayerIdx
@@ -87,5 +94,50 @@ class BaseballGameService(
     private fun createRandomBaseballNumber(): BaseballNumber {
         val numbers = (1..9).shuffled().take(3)
         return BaseballNumber(numbers)
+    }
+
+    @Transactional
+    fun tryBall(gameId: Long, request: BaseballGameTryBallRequest): BaseballGame {
+        val entity = baseballGameRepository.findById(gameId)
+            .orElseThrow { GameNotFoundException() }
+
+        val game = entity.toDomain()
+
+        val isCurrentPlayer = game.players[game.curPlayerIdx].id == request.playerId
+        if (!isCurrentPlayer) {
+            throw RuntimeException("해당 플레이어 차례가 아닙니다.")
+        }
+
+        val numberList = request.input.map { it.toString().toInt() }
+        val baseballNumber = BaseballNumber(numberList)
+
+        val updatedGame = game.tryBall(baseballNumber)
+
+        val updatedEntity = BaseballGameEntity.from(updatedGame)
+        baseballGameRepository.save(updatedEntity)
+
+        return updatedGame
+    }
+
+    @Transactional
+    fun addPlayer(gameId: Long): BaseballGame {
+        val gameEntity = baseballGameRepository.findById(gameId)
+            .orElseThrow { GameNotFoundException() }
+
+        val player = Player(
+            gameId = null, isWinner = false
+        )
+        val playerEntity = PlayerEntity.from(domain = player, game = gameEntity)
+        gameEntity.addPlayer(playerEntity)
+        playerRepository.save(playerEntity)
+        return gameEntity.toDomain()
+    }
+
+    @Transactional
+    fun removePlayer(gameId: Long, id: Long) {
+        val gameEntity = baseballGameRepository.findById(gameId)
+            .orElseThrow { GameNotFoundException() }
+        gameEntity.removePlayer(id)
+        playerRepository.deleteById(id)
     }
 }
